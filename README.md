@@ -53,8 +53,10 @@ Trong file requirements.txt đã có các thư viện cần thiết cho việc t
 ```
 pip install -r requirements.txt
 ```
-
-5. Thu thập các file static
+5. Thêm file csv chứa hist của các ảnh trong tập seg vào thư mục "SimilarImage/app/dataset"
+   [LINK DATASET](https://drive.google.com/file/d/12AqDGQtINSTTzFXvtbRyE-DFpWKJdt4R/view?usp=drive_link)
+   
+6. Thu thập các file static
 Trong Django, thu thập (collect) tất cả các tệp tĩnh (static files) từ các ứng dụng vào một thư mục duy nhất.
 ```
 python manage.py collectstatic
@@ -66,16 +68,16 @@ Are you sure you want to do this?
 
 Type 'yes' to continue, or 'no' to cancel:
 ```
-6. Chạy server local
+7. Chạy server local
 ```
 python manage.py runserver 8888
 ```
 
-7. Truy cập local host
+8. Truy cập local host
 ```
 http://127.0.0.1:8888/
 ```
-8. Đường dẫn trong ô nhập đường dẫn là đường dẫn tuyệt đối tới folder seg 
+9. Đường dẫn trong ô nhập đường dẫn là đường dẫn tuyệt đối tới folder seg 
 VD : D:\HK5\CS406_Xử_lí_ảnh_và_ứng_dụng\lab02\week3\dataset\seg 
 
 
