@@ -9,20 +9,24 @@ import cv2
 import pandas as pd
 from sklearn.preprocessing import Normalizer
 import os
+from django.views.decorators.csrf import csrf_exempt
 
 def convert_numpy_to_base64(np_array):
     try:
         image = Image.fromarray(np_array.astype('uint8')) 
+        if image.mode in ('RGBA', 'P'): 
+            image = image.convert('RGB')
+    
         img_byte_arr = io.BytesIO()
-        
         image.save(img_byte_arr, format='JPEG')
         img_byte_arr = img_byte_arr.getvalue()
-        
         return base64.b64encode(img_byte_arr).decode('utf-8')
+    
     except Exception as e:
         print(f"Error converting NumPy array to base64: {e}")
         raise
 
+@csrf_exempt
 def upload_image(request):
     if request.method == 'POST':
         print("Received POST request for image upload.")
@@ -51,14 +55,15 @@ def upload_image(request):
 
             seg_data = []
             for row in seg_df.itertuples():
-                row_values = np.array(list(row[1:257]))
-                seg_data.append([row[257], row[-1], row_values]) 
+                row_values = np.array(list(row[1:769]))
+                seg_data.append([row[769], row[-1], row_values]) 
             
             number_similar_image = int(number_similar_image)
             map_image_distance = {}
             for index, item in enumerate(seg_data):
                 distance = calculate_hist_distance(test_image_hist, item[2], distance_type)
                 map_image_distance[index] = distance
+
             closest_images = get_closest_images(map_image_distance, distance_type, n=number_similar_image)
             image_response = []
             distance_response = []
@@ -73,7 +78,7 @@ def upload_image(request):
 
             print(distance_response)
             print("Images converted to base64 successfully.")
-
+            print(type(distance_response))
             # Trả về các ảnh đã xử lý dưới dạng JSON
             return JsonResponse({
                 'success': True,
@@ -93,8 +98,13 @@ def main_web(request):
 
 def histogram_features(image):
     normalizer = Normalizer()
-    hist = cv2.calcHist([image], [0], None, [256], [0, 256])
-    hist = normalizer.fit_transform(hist.reshape(1, -1)).flatten() 
+    hist_list = []
+    for i in range(3): 
+        hist = cv2.calcHist([image], [i], None, [256], [0, 256])  
+        hist_list.append(hist)  
+    hist = np.concatenate(hist_list)
+    hist = normalizer.fit_transform(hist.reshape(1, -1)).flatten()
+
     return hist
 
 def calculate_hist_distance(hist1, hist2, distance_type):
@@ -120,6 +130,6 @@ def get_closest_images(map_image_distance, distance_type, n=10):
     return closest_images
 
 def read_image(img):
-    img = Image.open(img)
+    img = Image.open(img).convert("RGB")
     img_array = np.array(img)
     return img_array

@@ -101,6 +101,7 @@ function Execute() {
     formData.append('data_path', dataPath);
     formData.append('distance_type', distanceType);
 
+    document.getElementsByClassName('waiting_text')[0].style.display = "flex";
     // Gửi ảnh đến server qua fetch
     fetch('/upload-image/', {
         method: 'POST',
@@ -118,36 +119,48 @@ function Execute() {
     })
     .then(data => 
     {
-        if (data.success) {
+        if (data.success) 
+        {
+            document.getElementsByClassName('waiting_text')[0].style.display = 'none';
             console.log("Get dữ liệu thành công");
             const Top_similar_image = document.getElementsByClassName('Top_similar_image')[0];
             Top_similar_image.innerHTML = '';
             Top_similar_image.style.display = 'flex';
         
-            const numberOfImages = data.images.length; // Lấy số phần tử của mảng images
+            const numberOfImages = data.images.length; 
             console.log(`Số lượng hình ảnh: ${numberOfImages}`);
-            console.log(data.distance_response);
-            for (let index = 0; index < numberOfImages; index++) {
+            for (let index = 0; index < numberOfImages; index++) 
+            {
                 const imgBase64 = data.images[index]; 
-                // const h3_text = data.distance_response[index];
-                // const h32_text = data.labels[index];
+                const h3_text = data.distances[index].toFixed(4);
+                const h32_text = data.labels[index];
+
                 const img = document.createElement('img');
                 const div = document.createElement('div');
                 const h3 = document.createElement('h3');
                 const h32 = document.createElement('h3');
         
                 div.style.cssText = "display: flex; justify-content: flex-start; align-items: center; flex-direction: column; width: 21.5%; height: auto; border-radius: 10px;";
-                h3.style.cssText = "font-size: 12px; color: #fff; font-family: 'Genshin2', 'sans-serif';";
-                h32.style.cssText = "font-size: 12px; color: #fff; font-family: 'Genshin2', 'sans-serif';";
+                h3.style.cssText = "font-size: 12px; color: #fff; font-family: 'Genshin2', 'sans-serif'; margin : 10px 0;";
+                h32.style.cssText = "font-size: 12px; color: #fff; font-family: 'Genshin2', 'sans-serif'; margin : 10px 0;";
                 img.style.cssText = "width: 100%; height: auto; border-radius: 10px;";
         
                 img.src = `data:image/png;base64,${imgBase64}`;
                 console.log("Img ok");
-        
-                // h3.textContent = `Similarity: ${h3_text}`; // Sử dụng distance_response
-                // console.log("h3 ok");
-                // h32.textContent = `Label: ${h32_text}`; // Sử dụng labels
-                // console.log("h32 ok");
+                
+                var first_text = "";
+                if(distanceType === "correlation")
+                {
+                    first_text = "Similarity";
+                }
+                else
+                {
+                    first_text = "Distance";
+                }
+                h3.textContent = `${first_text}: ${h3_text}`; // Sử dụng distance_response
+                console.log("h3 ok");
+                h32.textContent = `Label: ${h32_text}`; // Sử dụng labels
+                console.log("h32 ok");
         
                 div.appendChild(img);
                 div.appendChild(h3);
